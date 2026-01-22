@@ -1,7 +1,7 @@
 package dev.modev.hydiscordsync.commands;
 
-import com.hypixel.hytale.server.core.HytaleServer;
 import dev.modev.hydiscordsync.HytaleDiscordSync;
+import dev.modev.hydiscordsync.config.BotConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -14,19 +14,24 @@ public class DiscordCommandListener extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (event.getName().equals("status")) {
 
+            HytaleDiscordSync plugin = HytaleDiscordSync.getInstance();
+            if (plugin == null) return;
+
+            BotConfig.Messages msgs = plugin.getConfigData().messages;
+
             int jugadores = HytaleDiscordSync.contadorJugadores;
             if (jugadores < 0) jugadores = 0;
-
             String maxJugadores = "100";
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("📊 Estado del Servidor");
+            embed.setTitle(msgs.statusTitle);
             embed.setColor(Color.GREEN);
-            embed.setDescription("El servidor está **EN LÍNEA**.");
+            embed.setDescription(msgs.statusDescription);
 
-            embed.addField("Jugadores", jugadores + " / " + maxJugadores, true);
+            embed.addField(msgs.statusFields, jugadores + " / " + maxJugadores, true);
 
-            embed.setFooter("Solicitado por " + event.getUser().getName());
+            String footer = msgs.statusFooter.replace("%user%", event.getUser().getName());
+            embed.setFooter(footer);
 
             event.replyEmbeds(embed.build()).queue();
         }

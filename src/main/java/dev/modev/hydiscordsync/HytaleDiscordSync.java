@@ -11,8 +11,8 @@ import dev.modev.hydiscordsync.config.ConfigManager;
 import dev.modev.hydiscordsync.listeners.ChatListener;
 import dev.modev.hydiscordsync.listeners.JoinListener;
 
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.List;
 
 public class HytaleDiscordSync extends JavaPlugin {
 

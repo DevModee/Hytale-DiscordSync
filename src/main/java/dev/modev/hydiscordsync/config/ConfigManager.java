@@ -29,7 +29,23 @@ public class ConfigManager {
 
         try (Reader reader = Files.newBufferedReader(configPath)) {
             System.out.println("[ConfigManager] Cargando configuración...");
-            return gson.fromJson(reader, BotConfig.class);
+
+            BotConfig configCargada = gson.fromJson(reader, BotConfig.class);
+
+            boolean necesitaGuardar = false;
+
+            if (configCargada.messages == null) {
+                System.out.println("[ConfigManager] Actualizando config: Añadiendo sección 'messages'...");
+                configCargada.messages = new BotConfig.Messages();
+                necesitaGuardar = true;
+            }
+
+            if (necesitaGuardar) {
+                guardar(configCargada);
+            }
+
+            return configCargada;
+
         } catch (IOException e) {
             System.err.println("[ConfigManager] Error al leer el archivo. Usando valores por defecto.");
             e.printStackTrace();
@@ -46,7 +62,4 @@ public class ConfigManager {
             e.printStackTrace();
         }
     }
-
-
-
 }

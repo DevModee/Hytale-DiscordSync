@@ -8,23 +8,30 @@ public class JoinListener {
 
     public static void onPlayerJoin(PlayerReadyEvent event) {
         HytaleDiscordSync.contadorJugadores++;
-
         HytaleDiscordSync.jugadoresConectados.add(event.getPlayer());
 
         String nombre = event.getPlayer().getDisplayName();
-        enviarAlerta(":green_circle: **" + nombre + "** entró al servidor.");
+
+        HytaleDiscordSync plugin = HytaleDiscordSync.getInstance();
+        if (plugin != null) {
+            String msg = plugin.getConfigData().messages.playerJoin
+                    .replace("%player%", nombre);
+            enviarAlerta(msg);
+        }
     }
 
     public static void onPlayerDisconnect(PlayerDisconnectEvent event) {
         HytaleDiscordSync.contadorJugadores--;
-
         String nombreSalida = event.getPlayerRef().getUsername();
 
         HytaleDiscordSync.jugadoresConectados.removeIf(p -> p.getDisplayName().equals(nombreSalida));
 
-        String nombre = event.getPlayerRef().getUsername();
-
-        enviarAlerta(":red_circle: **" + nombre + "** salió del servidor.");
+        HytaleDiscordSync plugin = HytaleDiscordSync.getInstance();
+        if (plugin != null) {
+            String msg = plugin.getConfigData().messages.playerLeave
+                    .replace("%player%", nombreSalida);
+            enviarAlerta(msg);
+        }
     }
 
     private static void enviarAlerta(String mensaje) {

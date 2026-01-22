@@ -17,7 +17,13 @@ public class ChatListener {
         if (plugin != null && plugin.getBot() != null) {
             String channelId = plugin.getConfigData().channelId;
             if (!channelId.equals("000000000000000000")) {
-                plugin.getBot().enviarMensajeChat(channelId, nombreJugador, mensaje);
+
+                String formato = plugin.getConfigData().messages.gameToDiscordFormat;
+                String mensajeFinal = formato
+                        .replace("%player%", nombreJugador)
+                        .replace("%message%", mensaje);
+
+                plugin.getBot().enviarMensajeChat(channelId, "Sistema", mensajeFinal);
             }
         }
     }
