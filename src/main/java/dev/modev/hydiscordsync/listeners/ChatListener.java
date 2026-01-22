@@ -7,7 +7,6 @@ import dev.modev.hydiscordsync.HytaleDiscordSync;
 public class ChatListener {
 
     public static void onPlayerChat(PlayerChatEvent event) {
-        System.out.println("[DEBUG] Evento de chat detectado.");
 
         PlayerRef sender = event.getSender();
         String nombreJugador = sender.getUsername();

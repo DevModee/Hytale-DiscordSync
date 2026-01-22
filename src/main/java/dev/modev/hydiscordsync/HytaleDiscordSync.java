@@ -77,7 +77,6 @@ public class HytaleDiscordSync extends JavaPlugin {
                         if (online < 0) online = 0;
 
                         if (fase == 0) {
-                            // Ahora sí funcionará setEstado porque lo agregaremos al bot
                             bot.setEstado("Hytale | " + online + " Online");
                             fase = 1;
                         } else {
