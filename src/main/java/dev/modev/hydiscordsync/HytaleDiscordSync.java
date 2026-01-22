@@ -2,6 +2,7 @@ package dev.modev.hydiscordsync;
 
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import dev.modev.hydiscordsync.config.BotConfig;
@@ -16,6 +17,9 @@ public class HytaleDiscordSync extends JavaPlugin {
     private DiscordBot bot;
     private BotConfig config;
     private ConfigManager configManager;
+    private boolean activo = true;
+
+    public static int contadorJugadores = 0;
 
     public HytaleDiscordSync(JavaPluginInit init) {
         super(init);
@@ -52,6 +56,7 @@ public class HytaleDiscordSync extends JavaPlugin {
 
         new Thread(() -> {
             bot.iniciar();
+            iniciarCicloEstado();
             System.out.println("[DiscordSync] Mensage configurado: " + config.mensajeInicio);
         }).start();
 
@@ -59,10 +64,39 @@ public class HytaleDiscordSync extends JavaPlugin {
 
         this.getEventRegistry().registerGlobal(PlayerChatEvent.class, ChatListener::onPlayerChat);
         this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, JoinListener::onPlayerJoin);
+        this.getEventRegistry().registerGlobal(PlayerDisconnectEvent.class, JoinListener::onPlayerDisconnect);
     }
+
+    private void iniciarCicloEstado() {
+        new Thread(() -> {
+            int fase = 0;
+            while (activo) {
+                try {
+                    if (bot.getJda() != null) {
+                        int online = contadorJugadores;
+                        if (online < 0) online = 0;
+
+                        if (fase == 0) {
+                            // Ahora sí funcionará setEstado porque lo agregaremos al bot
+                            bot.setEstado("Hytale | " + online + " Online");
+                            fase = 1;
+                        } else {
+                            bot.setEstado("discord.gg/lapampa");
+                            fase = 0;
+                        }
+                    }
+                    Thread.sleep(10000); // 10 segundos
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }).start();
+    }
+
 
     @Override
     public void shutdown() {
+        activo = false;
         if (bot != null) {
             bot.apagar();
         }
