@@ -1,6 +1,7 @@
 package dev.modev.hydiscordsync;
 
 import dev.modev.hydiscordsync.commands.DiscordCommandListener;
+import dev.modev.hydiscordsync.listeners.DiscordChatListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -25,6 +26,7 @@ public class DiscordBot {
                     .setActivity(Activity.playing("Hytale"))
                     .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                     .addEventListeners(new DiscordCommandListener())
+                    .addEventListeners(new DiscordChatListener())
                     .build();
 
                     jda.awaitReady();
