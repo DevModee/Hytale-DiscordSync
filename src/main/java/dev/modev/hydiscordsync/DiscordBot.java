@@ -52,7 +52,7 @@ public class DiscordBot {
         return jda;
     }
 
-    public void setEstasdo(String texto) {
+    public void setEstado(String texto) {
         if (jda != null) {
             jda.getPresence().setActivity(Activity.playing(texto));
         }

@@ -7,12 +7,14 @@ import dev.modev.hydiscordsync.HytaleDiscordSync;
 public class JoinListener {
 
     public static void onPlayerJoin(PlayerReadyEvent event) {
+        HytaleDiscordSync.contadorJugadores++;
         String nombre = event.getPlayer().getDisplayName();
         enviarAlerta(":green_circle: **" + nombre + "** entró al servidor.");
 
     }
 
     public static void onPlayerDisconnect(PlayerDisconnectEvent event) {
+        HytaleDiscordSync.contadorJugadores--;
         String nombre = event.getPlayerRef().getUsername();
         enviarAlerta(":red_circle: **" + nombre + "** salió del servidor.");
     }
