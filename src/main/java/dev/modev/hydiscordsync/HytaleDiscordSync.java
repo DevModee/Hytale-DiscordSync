@@ -1,5 +1,6 @@
 package dev.modev.hydiscordsync;
 
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
@@ -9,6 +10,9 @@ import dev.modev.hydiscordsync.config.BotConfig;
 import dev.modev.hydiscordsync.config.ConfigManager;
 import dev.modev.hydiscordsync.listeners.ChatListener;
 import dev.modev.hydiscordsync.listeners.JoinListener;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class HytaleDiscordSync extends JavaPlugin {
 
@@ -20,6 +24,8 @@ public class HytaleDiscordSync extends JavaPlugin {
     private boolean activo = true;
 
     public static int contadorJugadores = 0;
+
+    public static List<Player> jugadoresConectados = new CopyOnWriteArrayList<>();
 
     public HytaleDiscordSync(JavaPluginInit init) {
         super(init);
