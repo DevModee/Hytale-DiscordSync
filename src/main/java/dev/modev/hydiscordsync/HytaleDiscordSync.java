@@ -7,12 +7,27 @@ import dev.modev.hydiscordsync.config.ConfigManager;
 
 public class HytaleDiscordSync extends JavaPlugin {
 
+    private static HytaleDiscordSync instance;
+
     private DiscordBot bot;
     private BotConfig config;
     private ConfigManager configManager;
 
     public HytaleDiscordSync(JavaPluginInit init) {
         super(init);
+        instance = this;
+    }
+
+    public static HytaleDiscordSync getInstance() {
+        return instance;
+    }
+
+    public DiscordBot getBot() {
+        return bot;
+    }
+
+    public BotConfig getConfigData() {
+        return config;
     }
 
     @Override
