@@ -1,9 +1,11 @@
 package dev.modev.hydiscordsync;
 
+import dev.modev.hydiscordsync.commands.DiscordCommandListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class DiscordBot {
@@ -22,9 +24,14 @@ public class DiscordBot {
             jda = JDABuilder.createDefault(token)
                     .setActivity(Activity.playing("Hytale"))
                     .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                    .addEventListeners(new DiscordCommandListener())
                     .build();
 
                     jda.awaitReady();
+
+                    jda.updateCommands().addCommands(
+                            Commands.slash("status", "Ver el estado del servidor y jugadores")
+                    ).queue();
 
             System.out.println("[DiscordSync] Bot conectado con exito como: " + jda.getSelfUser().getName());
         } catch (InterruptedException e) {
@@ -45,13 +52,23 @@ public class DiscordBot {
         return jda;
     }
 
+    public void setEstado(String texto) {
+        if (jda != null) {
+            jda.getPresence().setActivity(Activity.playing(texto));
+        }
+    }
+
     public void enviarMensajeChat(String channelId, String jugador, String mensaje) {
         if (jda == null) return;
 
         try {
             TextChannel canal = jda.getTextChannelById(channelId);
             if (canal != null) {
-                canal.sendMessage("**" + jugador + "**: " + mensaje).queue();
+                if (jugador.equals("Sistema")) {
+                    canal.sendMessage(mensaje).queue();
+                } else {
+                    canal.sendMessage("**" + jugador + "**: " + mensaje).queue();
+                }
             } else {
                 System.err.println("[DiscordBot] Error: No encuentro el canal con ID " + channelId);
             }
