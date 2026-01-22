@@ -27,7 +27,7 @@ public class ConfigManager {
             return defaultConfig;
         }
 
-        try (Reader reader = Files newBuffedReader(configPath) {
+        try (Reader reader = Files.newBufferedReader(configPath)) {
             System.out.println("[ConfigManager] Cargando configuración...");
             return gson.fromJson(reader, BotConfig.class);
         } catch (IOException e) {

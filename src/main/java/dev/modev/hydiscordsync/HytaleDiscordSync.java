@@ -1,6 +1,7 @@
 package dev.modev.hydiscordsync;
 
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
+import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import dev.modev.hydiscordsync.config.BotConfig;
 import dev.modev.hydiscordsync.config.ConfigManager;
 
@@ -10,8 +11,12 @@ public class HytaleDiscordSync extends JavaPlugin {
     private BotConfig config;
     private ConfigManager configManager;
 
+    public HytaleDiscordSync(JavaPluginInit init) {
+        super(init);
+    }
+
     @Override
-    public void onEnable() {
+    public void setup() {
         System.out.println("[DiscordSync] Iniciando...");
 
         configManager = new ConfigManager("discordsync_config.json");
@@ -28,12 +33,12 @@ public class HytaleDiscordSync extends JavaPlugin {
 
         new Thread(() -> {
             bot.iniciar();
-            System.out.println("[DiscordSync] Mensage configurado: " + config.messageInicio);
+            System.out.println("[DiscordSync] Mensage configurado: " + config.mensajeInicio);
         }).start();
     }
 
     @Override
-    public void onDisable() {
+    public void shutdown() {
         if (bot != null) {
             bot.apagar();
         }
