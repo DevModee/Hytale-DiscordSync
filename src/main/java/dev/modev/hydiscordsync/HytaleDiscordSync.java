@@ -1,9 +1,13 @@
 package dev.modev.hydiscordsync;
 
+import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import dev.modev.hydiscordsync.config.BotConfig;
 import dev.modev.hydiscordsync.config.ConfigManager;
+import dev.modev.hydiscordsync.listeners.ChatListener;
+import dev.modev.hydiscordsync.listeners.JoinListener;
 
 public class HytaleDiscordSync extends JavaPlugin {
 
@@ -50,6 +54,11 @@ public class HytaleDiscordSync extends JavaPlugin {
             bot.iniciar();
             System.out.println("[DiscordSync] Mensage configurado: " + config.mensajeInicio);
         }).start();
+
+        System.out.println("[DiscordSync] Registrando eventos de Chat y Entrada...");
+
+        this.getEventRegistry().registerGlobal(PlayerChatEvent.class, ChatListener::onPlayerChat);
+        this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, JoinListener::onPlayerJoin);
     }
 
     @Override
