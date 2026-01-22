@@ -1,4 +1,4 @@
-package dev.modev.hydiscordsync;
+package dev.modev.hydiscordsync.config;
 
 public class BotConfig {
 
