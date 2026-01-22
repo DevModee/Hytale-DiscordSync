@@ -3,6 +3,7 @@ package dev.modev.hydiscordsync;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class DiscordBot {
@@ -42,6 +43,21 @@ public class DiscordBot {
 
     public JDA getJda() {
         return jda;
+    }
+
+    public void enviarMensajeChat(String channelId, String jugador, String mensaje) {
+        if (jda == null) return;
+
+        try {
+            TextChannel canal = jda.getTextChannelById(channelId);
+            if (canal != null) {
+                canal.sendMessage("**" + jugador + "**: " + mensaje).queue();
+            } else {
+                System.err.println("[DiscordBot] Error: No encuentro el canal con ID " + channelId);
+            }
+        } catch (Exception e) {
+            System.err.println("[DiscordBot] Error enviando mensaje: " + e.getMessage());
+        }
     }
 
 }
