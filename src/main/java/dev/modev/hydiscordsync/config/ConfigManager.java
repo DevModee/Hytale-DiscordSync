@@ -19,46 +19,51 @@ public class ConfigManager {
         this.configPath = Paths.get(fileName);
     }
 
-    public BotConfig cargar() {
+    public BotConfig load() {
         if (!Files.exists(configPath)) {
-            System.out.println("[ConfigManager] Archivo no encontrado, creando uno nuevo...");
+            System.out.println("[ConfigManager] File not found, creating new one...");
             BotConfig defaultConfig = new BotConfig();
-            guardar(defaultConfig);
+            save(defaultConfig);
             return defaultConfig;
         }
 
         try (Reader reader = Files.newBufferedReader(configPath)) {
-            System.out.println("[ConfigManager] Cargando configuración...");
+            System.out.println("[ConfigManager] Loading Configuration...");
 
-            BotConfig configCargada = gson.fromJson(reader, BotConfig.class);
+            BotConfig configLoaded = gson.fromJson(reader, BotConfig.class);
+            boolean saveNeeded = false;
 
-            boolean necesitaGuardar = false;
-
-            if (configCargada.messages == null) {
-                System.out.println("[ConfigManager] Actualizando config: Añadiendo sección 'messages'...");
-                configCargada.messages = new BotConfig.Messages();
-                necesitaGuardar = true;
+            if (configLoaded.messages == null) {
+                configLoaded.messages = new BotConfig.Messages();
+                saveNeeded = true;
             }
 
-            if (necesitaGuardar) {
-                guardar(configCargada);
+            if (configLoaded.embeds == null) {
+                System.out.println("[ConfigManager] Updating config: Adding 'embeds' section...");
+                configLoaded.embeds = new BotConfig.EmbedConfig();
+                saveNeeded = true;
             }
 
-            return configCargada;
+            if (saveNeeded) {
+                save(configLoaded);
+                System.out.println("[ConfigManager] Configuration file updated automatically.");
+            }
+
+            return configLoaded;
 
         } catch (IOException e) {
-            System.err.println("[ConfigManager] Error al leer el archivo. Usando valores por defecto.");
+            System.err.println("[ConfigManager] Error reading file. Using defaults.");
             e.printStackTrace();
             return new BotConfig();
         }
     }
 
-    public void guardar(BotConfig config) {
+    public void save(BotConfig config) {
         try {
             String json = gson.toJson(config);
             Files.write(configPath, json.getBytes());
         } catch (IOException e) {
-            System.err.println("[ConfigManager] No se pudo guardar el archivo de configuración");
+            System.err.println("[ConfigManager] Could not save config file");
             e.printStackTrace();
         }
     }

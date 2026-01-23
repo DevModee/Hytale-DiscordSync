@@ -19,16 +19,16 @@ public class DiscordCommandListener extends ListenerAdapter {
 
             BotConfig.Messages msgs = plugin.getConfigData().messages;
 
-            int jugadores = HytaleDiscordSync.playerCount;
-            if (jugadores < 0) jugadores = 0;
-            String maxJugadores = "100";
+            int players = HytaleDiscordSync.playerCount;
+            if (players < 0) players = 0;
+            String maxPlayers = "100";
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(msgs.statusTitle);
             embed.setColor(Color.GREEN);
             embed.setDescription(msgs.statusDescription);
 
-            embed.addField(msgs.statusFields, jugadores + " / " + maxJugadores, true);
+            embed.addField(msgs.statusFields, players + " / " + maxPlayers, true);
 
             String footer = msgs.statusFooter.replace("%user%", event.getUser().getName());
             embed.setFooter(footer);

@@ -25,7 +25,7 @@ public class HytaleDiscordSync extends JavaPlugin {
 
     public static int playerCount = 0;
 
-    public static List<Player> jugadoresConectados = new CopyOnWriteArrayList<>();
+    public static List<Player> connectedPlayers = new CopyOnWriteArrayList<>();
 
     public HytaleDiscordSync(JavaPluginInit init) {
         super(init);
@@ -39,34 +39,40 @@ public class HytaleDiscordSync extends JavaPlugin {
     public DiscordBot getBot() {
         return bot;
     }
-
     public BotConfig getConfigData() {
         return config;
     }
 
     @Override
     public void setup() {
-        System.out.println("[DiscordSync] Iniciando...");
+        System.out.println("[DiscordSync] Starting...");
 
         configManager = new ConfigManager("discordsync_config.json");
+        config = configManager.load();
 
-        config = configManager.cargar();
-
-        if (config.botToken.contains("CAMBIA_ESTO") || config.botToken.isEmpty()) {
-            System.err.println("[DiscordSync] ALERTA: Debes configurar el Token en discordsync_config.json");
-            System.err.println("[DiscordSync] El plugin se apagará.");
+        if (config.botToken.contains("BOT_TOKEN") || config.botToken.isEmpty()) {
+            System.err.println("[DiscordSync] ALERTA: Please configure the token.");
             return;
         }
 
         bot = new DiscordBot(config.botToken);
 
         new Thread(() -> {
-            bot.iniciar();
+            bot.start();
+
+            if (config.embeds.serverStart.enabled) {
+                bot.sendEmbed(
+                        config.channelId,
+                        config.embeds.serverStart.color,
+                        config.embeds.serverStart.title,
+                        config.embeds.serverStart.description
+                );
+            }
+
             startStatusCycle();
-            System.out.println("[DiscordSync] Mensage configurado: " + config.mensajeInicio);
         }).start();
 
-        System.out.println("[DiscordSync] Registrando eventos de Chat y Entrada...");
+        System.out.println("[DiscordSync] Registering events...");
 
         this.getEventRegistry().registerGlobal(PlayerChatEvent.class, ChatListener::onPlayerChat);
         this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, JoinListener::onPlayerJoin);
@@ -90,7 +96,7 @@ public class HytaleDiscordSync extends JavaPlugin {
                         String statusText = config.statusMessages.get(index);
                         statusText = statusText.replace("%online%", String.valueOf(online));
 
-                        bot.setEstado(statusText);
+                        bot.setStatus(statusText);
 
                         index++;
                     }
@@ -109,9 +115,21 @@ public class HytaleDiscordSync extends JavaPlugin {
     @Override
     public void shutdown() {
         active = false;
-        if (bot != null) {
-            bot.apagar();
+
+        if (bot != null && config != null) {
+            if (config.embeds.serverStop.enabled) {
+                bot.sendEmbed(
+                        config.channelId,
+                        config.embeds.serverStop.color,
+                        config.embeds.serverStop.title,
+                        config.embeds.serverStop.description
+                );
+            }
+
+            try { Thread.sleep(1000); } catch (Exception e) {}
+
+            bot.shutdown();
         }
-        System.out.println("[DiscordSync] Bot apagado");
+        System.out.println("[DiscordSync] Plugin stopped.");
     }
 }

@@ -20,18 +20,18 @@ public class DiscordChatListener extends ListenerAdapter {
         String eventChannelId = event.getChannel().getId();
 
         if (event.getChannel().getId().equals(configChannelId)) {
-            String usuario = event.getAuthor().getName();
-            String mensaje = event.getMessage().getContentDisplay();
+            String user = event.getAuthor().getName();
+            String message = event.getMessage().getContentDisplay();
 
-            String formato = plugin.getConfigData().messages.discordToGameFormat;
+            String format = plugin.getConfigData().messages.discordToGameFormat;
 
-            String textoFinal = formato
-                    .replace("%user%", usuario)
-                    .replace("%message%", mensaje);
+            String finalText = format
+                    .replace("%user%", user)
+                    .replace("%message%", message);
 
-            for (Player player : HytaleDiscordSync.jugadoresConectados) {
+            for (Player player : HytaleDiscordSync.connectedPlayers) {
                 try {
-                    player.sendMessage(Message.raw(textoFinal));
+                    player.sendMessage(Message.raw(finalText));
                 } catch (Exception e) {
                 }
             }

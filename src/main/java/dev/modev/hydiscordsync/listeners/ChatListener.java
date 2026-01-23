@@ -9,8 +9,8 @@ public class ChatListener {
     public static void onPlayerChat(PlayerChatEvent event) {
 
         PlayerRef sender = event.getSender();
-        String nombreJugador = sender.getUsername();
-        String mensaje = event.getContent();
+        String playerName = sender.getUsername();
+        String message = event.getContent();
 
         HytaleDiscordSync plugin = HytaleDiscordSync.getInstance();
 
@@ -18,12 +18,12 @@ public class ChatListener {
             String channelId = plugin.getConfigData().channelId;
             if (!channelId.equals("000000000000000000")) {
 
-                String formato = plugin.getConfigData().messages.gameToDiscordFormat;
-                String mensajeFinal = formato
-                        .replace("%player%", nombreJugador)
-                        .replace("%message%", mensaje);
+                String format = plugin.getConfigData().messages.gameToDiscordFormat;
+                String finalMessage = format
+                        .replace("%player%", playerName)
+                        .replace("%message%", message);
 
-                plugin.getBot().enviarMensajeChat(channelId, "Sistema", mensajeFinal);
+                plugin.getBot().sendChatMessage(channelId, "Sistema", finalMessage);
             }
         }
     }
