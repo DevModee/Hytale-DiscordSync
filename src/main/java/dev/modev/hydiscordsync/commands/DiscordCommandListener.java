@@ -19,7 +19,7 @@ public class DiscordCommandListener extends ListenerAdapter {
 
             BotConfig.Messages msgs = plugin.getConfigData().messages;
 
-            int jugadores = HytaleDiscordSync.contadorJugadores;
+            int jugadores = HytaleDiscordSync.playerCount;
             if (jugadores < 0) jugadores = 0;
             String maxJugadores = "100";
 

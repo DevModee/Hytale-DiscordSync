@@ -7,7 +7,7 @@ import dev.modev.hydiscordsync.HytaleDiscordSync;
 public class JoinListener {
 
     public static void onPlayerJoin(PlayerReadyEvent event) {
-        HytaleDiscordSync.contadorJugadores++;
+        HytaleDiscordSync.playerCount++;
         HytaleDiscordSync.jugadoresConectados.add(event.getPlayer());
 
         String nombre = event.getPlayer().getDisplayName();
@@ -21,7 +21,7 @@ public class JoinListener {
     }
 
     public static void onPlayerDisconnect(PlayerDisconnectEvent event) {
-        HytaleDiscordSync.contadorJugadores--;
+        HytaleDiscordSync.playerCount--;
         String nombreSalida = event.getPlayerRef().getUsername();
 
         HytaleDiscordSync.jugadoresConectados.removeIf(p -> p.getDisplayName().equals(nombreSalida));

@@ -21,9 +21,9 @@ public class HytaleDiscordSync extends JavaPlugin {
     private DiscordBot bot;
     private BotConfig config;
     private ConfigManager configManager;
-    private boolean activo = true;
+    private boolean active = true;
 
-    public static int contadorJugadores = 0;
+    public static int playerCount = 0;
 
     public static List<Player> jugadoresConectados = new CopyOnWriteArrayList<>();
 
@@ -62,7 +62,7 @@ public class HytaleDiscordSync extends JavaPlugin {
 
         new Thread(() -> {
             bot.iniciar();
-            iniciarCicloEstado();
+            startStatusCycle();
             System.out.println("[DiscordSync] Mensage configurado: " + config.mensajeInicio);
         }).start();
 
@@ -73,26 +73,33 @@ public class HytaleDiscordSync extends JavaPlugin {
         this.getEventRegistry().registerGlobal(PlayerDisconnectEvent.class, JoinListener::onPlayerDisconnect);
     }
 
-    private void iniciarCicloEstado() {
+    private void startStatusCycle() {
         new Thread(() -> {
-            int fase = 0;
-            while (activo) {
+            int index = 0;
+            while (active) {
                 try {
-                    if (bot.getJda() != null) {
-                        int online = contadorJugadores;
+                    if (bot.getJda() != null && config.statusMessages != null && !config.statusMessages.isEmpty()) {
+
+                        int online = playerCount;
                         if (online < 0) online = 0;
 
-                        if (fase == 0) {
-                            bot.setEstado("Hytale | " + online + " Online");
-                            fase = 1;
-                        } else {
-                            bot.setEstado("discord.gg/lapampa");
-                            fase = 0;
+                        if(index >= config.statusMessages.size()) {
+                            index = 0;
                         }
+
+                        String statusText = config.statusMessages.get(index);
+                        statusText = statusText.replace("%online%", String.valueOf(online));
+
+                        bot.setEstado(statusText);
+
+                        index++;
                     }
-                    Thread.sleep(10000); // 10 segundos
+                    long sleepTime = config.statusInterval > 0 ? config.statusInterval * 1000L : 5000L;
+                    Thread.sleep(sleepTime);
                 } catch (InterruptedException e) {
                     break;
+                } catch (Exception e) {
+                    System.err.println("[DiscordSync] Error in status cycle: " + e.getMessage());
                 }
             }
         }).start();
@@ -101,7 +108,7 @@ public class HytaleDiscordSync extends JavaPlugin {
 
     @Override
     public void shutdown() {
-        activo = false;
+        active = false;
         if (bot != null) {
             bot.apagar();
         }
