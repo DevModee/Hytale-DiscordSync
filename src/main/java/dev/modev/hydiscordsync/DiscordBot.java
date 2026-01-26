@@ -60,16 +60,13 @@ public class DiscordBot {
         }
     }
 
-    public void sendChatMessage(String channelId, String player, String message) {
+    public void sendChatMessage(String channelId, String author, String message) {
         if (jda == null) return;
-
         try {
-            TextChannel canal = jda.getTextChannelById(channelId);
-            if (canal != null) {
-                if (player.equals("System")) {
-                    canal.sendMessage(message).queue();
-                } else {
-                    canal.sendMessage("**" + player + "**: " + message).queue();
+            TextChannel channel = jda.getTextChannelById(channelId);
+            if (channel != null) {
+                if (!author.equalsIgnoreCase("System") && !author.equalsIgnoreCase("Sistema")) {
+                    channel.sendMessage("**" + author + "**: " + message).queue();
                 }
             }
         } catch (Exception e) {
@@ -79,25 +76,29 @@ public class DiscordBot {
 
     public void sendEmbed(String channelId, String colorHex, String title, String description) {
         if (jda == null) {
-            try {
-                TextChannel channel = jda.getTextChannelById(channelId);
-                if (channel != null) {
-                    EmbedBuilder eb = new EmbedBuilder();
+            System.err.println("[DiscordBot] Error: JDA is null, cannot send embed.");
+            return;
+        }
+        try {
+            TextChannel channel = jda.getTextChannelById(channelId);
+            if (channel != null) {
+                EmbedBuilder eb = new EmbedBuilder();
 
-                    try {
-                        eb.setColor(Color.decode(colorHex));
-                    } catch (Exception e) {
-                        eb.setColor(Color.WHITE);
-                    }
-
-                    if (title != null && !title.isEmpty()) eb.setTitle(title);
-                    if (description != null && !description.isEmpty()) eb.setDescription(description);
-
-                    channel.sendMessageEmbeds(eb.build()).queue();
+                try {
+                    eb.setColor(Color.decode(colorHex));
+                } catch (Exception e) {
+                    eb.setColor(Color.GRAY);
                 }
-            } catch (Exception e) {
-                System.err.println("[DiscordBot] Error sending embed: " + e.getMessage());
+
+                if (title != null && !title.isEmpty()) eb.setTitle(title);
+                if (description != null && !description.isEmpty()) eb.setDescription(description);
+
+                channel.sendMessageEmbeds(eb.build()).queue();
+            } else {
+                System.err.println("[DiscordBot] Error: Channel ID " + channelId + " not found.");
             }
+        } catch (Exception e) {
+            System.err.println("[DiscordBot] Error sending embed: " + e.getMessage());
         }
     }
 

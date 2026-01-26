@@ -60,13 +60,16 @@ public class HytaleDiscordSync extends JavaPlugin {
         new Thread(() -> {
             bot.start();
 
-            if (config.embeds.serverStart.enabled) {
+            if (bot.getJda() != null && config.embeds != null && config.embeds.serverStart.enabled) {
+                System.out.println("[DiscordSync] Sending Start Embed...");
                 bot.sendEmbed(
                         config.channelId,
                         config.embeds.serverStart.color,
                         config.embeds.serverStart.title,
                         config.embeds.serverStart.description
                 );
+            } else {
+                System.out.println("[DiscordSync] Start Embed skipped (disabled or bot null).");
             }
 
             startStatusCycle();
@@ -116,8 +119,9 @@ public class HytaleDiscordSync extends JavaPlugin {
     public void shutdown() {
         active = false;
 
-        if (bot != null && config != null) {
+        if (bot != null && config != null && config.embeds != null) {
             if (config.embeds.serverStop.enabled) {
+                System.out.println("[DiscordSync] Sending Stop Embed...");
                 bot.sendEmbed(
                         config.channelId,
                         config.embeds.serverStop.color,
@@ -126,10 +130,10 @@ public class HytaleDiscordSync extends JavaPlugin {
                 );
             }
 
-            try { Thread.sleep(1000); } catch (Exception e) {}
+            try { Thread.sleep(2000); } catch (Exception e) {}
 
             bot.shutdown();
         }
-        System.out.println("[DiscordSync] Plugin stopped.");
+        System.out.println("[DiscordSync] Plugin Stopped.");
     }
 }
