@@ -1,5 +1,6 @@
 package dev.modev.hydiscordsync;
 
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
@@ -10,6 +11,9 @@ import dev.modev.hydiscordsync.config.ConfigManager;
 import dev.modev.hydiscordsync.listeners.ChatListener;
 import dev.modev.hydiscordsync.listeners.JoinListener;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.List;
+
 public class HytaleDiscordSync extends JavaPlugin {
 
     private static HytaleDiscordSync instance;
@@ -17,9 +21,11 @@ public class HytaleDiscordSync extends JavaPlugin {
     private DiscordBot bot;
     private BotConfig config;
     private ConfigManager configManager;
-    private boolean activo = true;
+    private boolean active = true;
 
-    public static int contadorJugadores = 0;
+    public static int playerCount = 0;
+
+    public static List<Player> connectedPlayers = new CopyOnWriteArrayList<>();
 
     public HytaleDiscordSync(JavaPluginInit init) {
         super(init);
@@ -33,60 +39,76 @@ public class HytaleDiscordSync extends JavaPlugin {
     public DiscordBot getBot() {
         return bot;
     }
-
     public BotConfig getConfigData() {
         return config;
     }
 
     @Override
     public void setup() {
-        System.out.println("[DiscordSync] Iniciando...");
+        System.out.println("[DiscordSync] Starting...");
 
         configManager = new ConfigManager("discordsync_config.json");
+        config = configManager.load();
 
-        config = configManager.cargar();
-
-        if (config.botToken.contains("CAMBIA_ESTO") || config.botToken.isEmpty()) {
-            System.err.println("[DiscordSync] ALERTA: Debes configurar el Token en discordsync_config.json");
-            System.err.println("[DiscordSync] El plugin se apagará.");
+        if (config.botToken.contains("BOT_TOKEN") || config.botToken.isEmpty()) {
+            System.err.println("[DiscordSync] ALERTA: Please configure the token.");
             return;
         }
 
         bot = new DiscordBot(config.botToken);
 
         new Thread(() -> {
-            bot.iniciar();
-            iniciarCicloEstado();
-            System.out.println("[DiscordSync] Mensage configurado: " + config.mensajeInicio);
+            bot.start();
+
+            if (bot.getJda() != null && config.embeds != null && config.embeds.serverStart.enabled) {
+                System.out.println("[DiscordSync] Sending Start Embed...");
+                bot.sendEmbed(
+                        config.channelId,
+                        config.embeds.serverStart.color,
+                        config.embeds.serverStart.title,
+                        config.embeds.serverStart.description
+                );
+            } else {
+                System.out.println("[DiscordSync] Start Embed skipped (disabled or bot null).");
+            }
+
+            startStatusCycle();
         }).start();
 
-        System.out.println("[DiscordSync] Registrando eventos de Chat y Entrada...");
+        System.out.println("[DiscordSync] Registering events...");
 
         this.getEventRegistry().registerGlobal(PlayerChatEvent.class, ChatListener::onPlayerChat);
         this.getEventRegistry().registerGlobal(PlayerReadyEvent.class, JoinListener::onPlayerJoin);
         this.getEventRegistry().registerGlobal(PlayerDisconnectEvent.class, JoinListener::onPlayerDisconnect);
     }
 
-    private void iniciarCicloEstado() {
+    private void startStatusCycle() {
         new Thread(() -> {
-            int fase = 0;
-            while (activo) {
+            int index = 0;
+            while (active) {
                 try {
-                    if (bot.getJda() != null) {
-                        int online = contadorJugadores;
+                    if (bot.getJda() != null && config.statusMessages != null && !config.statusMessages.isEmpty()) {
+
+                        int online = playerCount;
                         if (online < 0) online = 0;
 
-                        if (fase == 0) {
-                            bot.setEstado("Hytale | " + online + " Online");
-                            fase = 1;
-                        } else {
-                            bot.setEstado("discord.gg/lapampa");
-                            fase = 0;
+                        if(index >= config.statusMessages.size()) {
+                            index = 0;
                         }
+
+                        String statusText = config.statusMessages.get(index);
+                        statusText = statusText.replace("%online%", String.valueOf(online));
+
+                        bot.setStatus(statusText);
+
+                        index++;
                     }
-                    Thread.sleep(10000); // 10 segundos
+                    long sleepTime = config.statusInterval > 0 ? config.statusInterval * 1000L : 5000L;
+                    Thread.sleep(sleepTime);
                 } catch (InterruptedException e) {
                     break;
+                } catch (Exception e) {
+                    System.err.println("[DiscordSync] Error in status cycle: " + e.getMessage());
                 }
             }
         }).start();
@@ -95,10 +117,23 @@ public class HytaleDiscordSync extends JavaPlugin {
 
     @Override
     public void shutdown() {
-        activo = false;
-        if (bot != null) {
-            bot.apagar();
+        active = false;
+
+        if (bot != null && config != null && config.embeds != null) {
+            if (config.embeds.serverStop.enabled) {
+                System.out.println("[DiscordSync] Sending Stop Embed...");
+                bot.sendEmbed(
+                        config.channelId,
+                        config.embeds.serverStop.color,
+                        config.embeds.serverStop.title,
+                        config.embeds.serverStop.description
+                );
+            }
+
+            try { Thread.sleep(2000); } catch (Exception e) {}
+
+            bot.shutdown();
         }
-        System.out.println("[DiscordSync] Bot apagado");
+        System.out.println("[DiscordSync] Plugin Stopped.");
     }
 }
