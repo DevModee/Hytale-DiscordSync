@@ -22,7 +22,7 @@ public class BotConfig {
     public EmbedConfig embeds = new EmbedConfig();
 
     public static class Messages {
-        public String discordToGameFormat = "§9[Discord] §f%user%: %message%";
+        public String discordToGameFormat = "[Discord] %user%: %message%";
 
         public String gameToDiscordFormat = "**%player%**: %message%";
         public String playerJoin = ":green_circle: **%player%** joined the server.";
