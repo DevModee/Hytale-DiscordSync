@@ -1,0 +1,18 @@
+{
+  "Group": "dev.modev",
+  "Name": "HytaleDiscordSync",
+  "Version": "1.0-SNAPSHOT",
+  "Description": "Sincronizacion de chat entre Hytale y Discord",
+  "Authors": [
+    {
+      "Name": "Matias",
+      "Email": "modev@gmail.com",
+      "Url": "https://discord.gg/lapampa"
+    }
+  ],
+  "ServerVersion": "*",
+  "Dependencies": {},
+  "OptionalDependencies": {},
+  "DisabledByDefault": false,
+  "Main": "dev.modev.hydiscordsync.HytaleDiscordSync"
+}

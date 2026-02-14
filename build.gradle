@@ -3,7 +3,7 @@ plugins {
     id 'io.github.goooler.shadow' version '8.1.7'}
 
 group = 'dev.modev'
-version = '1.5'
+version = '1.5-FIX'
 
 repositories {
     mavenCentral()

@@ -25,7 +25,7 @@ public class BotConfig {
     public EmbedConfig embeds = new EmbedConfig();
 
     public static class Messages {
-        public String discordToGameFormat = "§9[Discord] §f%user%: %message%";
+        public String discordToGameFormat = "[Discord] %user%: %message%";
         public String gameToDiscordFormat = "**%player%**: %message%";
         public String playerJoin = ":green_circle: **%player%** joined the server.";
         public String playerLeave = ":red_circle: **%player%** left the server.";
@@ -49,6 +49,13 @@ public class BotConfig {
         public String color;
         public String title;
         public String description;
+
+        public EmbedSettings() {
+            this.enabled = true;
+            this.color = "#FFFFFF";
+            this.title = "";
+            this.description = "";
+        }
 
         public EmbedSettings(boolean enabled, String color, String title, String description) {
             this.enabled = enabled;
