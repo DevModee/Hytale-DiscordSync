@@ -25,6 +25,11 @@ public class JoinListener {
                         settings.description.replace("%player%", name)
                 );
             }
+
+            if (plugin.getRoleSyncManager() != null && plugin.getConfigData().roleSync.enabled
+                    && plugin.getConfigData().roleSync.syncOnJoin) {
+                plugin.getRoleSyncManager().syncPlayer(name);
+            }
         }
     }
 

@@ -10,6 +10,8 @@ import dev.modev.hydiscordsync.config.BotConfig;
 import dev.modev.hydiscordsync.config.ConfigManager;
 import dev.modev.hydiscordsync.listeners.ChatListener;
 import dev.modev.hydiscordsync.listeners.JoinListener;
+import dev.modev.hydiscordsync.remotecommands.RemoteCommandManager;
+import dev.modev.hydiscordsync.rolesync.RoleSyncManager;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
@@ -21,6 +23,8 @@ public class HytaleDiscordSync extends JavaPlugin {
     private DiscordBot bot;
     private BotConfig config;
     private ConfigManager configManager;
+    private RoleSyncManager roleSyncManager;
+    private RemoteCommandManager remoteCommandManager;
     private boolean active = true;
 
     public static int playerCount = 0;
@@ -42,6 +46,12 @@ public class HytaleDiscordSync extends JavaPlugin {
     public BotConfig getConfigData() {
         return config;
     }
+    public RoleSyncManager getRoleSyncManager() {
+        return roleSyncManager;
+    }
+    public RemoteCommandManager getRemoteCommandManager() {
+        return remoteCommandManager;
+    }
 
     @Override
     public void setup() {
@@ -55,7 +65,10 @@ public class HytaleDiscordSync extends JavaPlugin {
             return;
         }
 
-        bot = new DiscordBot(config.botToken);
+        roleSyncManager = new RoleSyncManager(this);
+        remoteCommandManager = new RemoteCommandManager(this);
+
+        bot = new DiscordBot(config.botToken, config, roleSyncManager, remoteCommandManager);
 
         new Thread(() -> {
             bot.start();
@@ -71,6 +84,9 @@ public class HytaleDiscordSync extends JavaPlugin {
             } else {
                 System.out.println("[DiscordSync] Start Embed skipped (disabled or bot null).");
             }
+
+            roleSyncManager.start();
+            remoteCommandManager.start();
 
             startStatusCycle();
         }).start();
@@ -118,6 +134,8 @@ public class HytaleDiscordSync extends JavaPlugin {
     @Override
     public void shutdown() {
         active = false;
+
+        if (roleSyncManager != null) roleSyncManager.shutdown();
 
         if (bot != null && config != null && config.embeds != null) {
             if (config.embeds.serverStop.enabled) {

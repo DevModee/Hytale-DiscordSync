@@ -1,41 +1,70 @@
 package dev.modev.hydiscordsync;
 
 import dev.modev.hydiscordsync.commands.DiscordCommandListener;
+import dev.modev.hydiscordsync.config.BotConfig;
 import dev.modev.hydiscordsync.listeners.DiscordChatListener;
+import dev.modev.hydiscordsync.remotecommands.RemoteCommandManager;
+import dev.modev.hydiscordsync.rolesync.RoleSyncListener;
+import dev.modev.hydiscordsync.rolesync.RoleSyncManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DiscordBot {
 
     private JDA jda;
     private final String token;
+    private final BotConfig config;
+    private final RoleSyncManager roleSyncManager;
+    private final RemoteCommandManager remoteCommandManager;
 
-    public DiscordBot(String token) {
+    public DiscordBot(String token, BotConfig config, RoleSyncManager roleSyncManager, RemoteCommandManager remoteCommandManager) {
         this.token = token;
+        this.config = config;
+        this.roleSyncManager = roleSyncManager;
+        this.remoteCommandManager = remoteCommandManager;
     }
 
     public void start() {
         try {
             System.out.println("[DiscordSync] Connecting to Discord...");
 
-            jda = JDABuilder.createDefault(token)
-                    .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+            JDABuilder builder = JDABuilder.createDefault(token)
+                    .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS)
                     .addEventListeners(new DiscordCommandListener())
-                    .addEventListeners(new DiscordChatListener())
-                    .build();
+                    .addEventListeners(new DiscordChatListener());
 
-                    jda.awaitReady();
+            if (config.roleSync.enabled) {
+                builder.addEventListeners(new RoleSyncListener());
+            }
 
-                    jda.updateCommands().addCommands(
-                            Commands.slash("status", "Check server status")
-                    ).queue();
+            if (config.remoteCommands.enabled) {
+                builder.addEventListeners(remoteCommandManager);
+            }
+
+            jda = builder.build();
+            jda.awaitReady();
+
+            List<net.dv8tion.jda.api.interactions.commands.build.CommandData> slashCommands = new ArrayList<>();
+            slashCommands.add(Commands.slash("status", "Check server status"));
+
+            if (config.roleSync.enabled) {
+                slashCommands.add(Commands.slash("link", "Link your Discord account to your game account"));
+                slashCommands.add(Commands.slash("unlink", "Unlink your Discord account from your game account"));
+                slashCommands.add(Commands.slash("syncplayer", "Sync a player's roles (admin)")
+                        .addOption(OptionType.STRING, "player", "Player name to sync", true));
+            }
+
+            jda.updateCommands().addCommands(slashCommands).queue();
 
             System.out.println("[DiscordSync] Bot connected as: " + jda.getSelfUser().getName());
         } catch (Exception e) {
