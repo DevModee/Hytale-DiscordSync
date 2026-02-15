@@ -1,7 +1,6 @@
 package dev.modev.hydiscordsync.config;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class BotConfig {
 
@@ -10,8 +9,8 @@ public class BotConfig {
     public String startMessage = "The server is online!";
 
     public String serverName = "Hytale Server";
-    public String serverIcon = "https://i.imgur.com/tu_logo.png";
-    public String serverBanner = "https://i.imgur.com/tu_banner.png";
+    public String serverIcon = "https://i.imgur.com/your_logo.png";
+    public String serverBanner = "https://i.imgur.com/your_banner.png";
 
     public List<String> statusMessages = Arrays.asList(
             "Hytale | %online% Online",
@@ -23,6 +22,8 @@ public class BotConfig {
 
     public Messages messages = new Messages();
     public EmbedConfig embeds = new EmbedConfig();
+    public RoleSyncConfig roleSync = new RoleSyncConfig();
+    public RemoteCommandsConfig remoteCommands = new RemoteCommandsConfig();
 
     public static class Messages {
         public String discordToGameFormat = "[Discord] %user%: %message%";
@@ -63,5 +64,46 @@ public class BotConfig {
             this.title = title;
             this.description = description;
         }
+    }
+
+    public static class RoleSyncConfig {
+        public boolean enabled = false;
+        public boolean syncOnJoin = true;
+        public int syncInterval = 300;
+        public boolean requireDiscordLink = false;
+        public String guildId = "";
+        public String defaultGroup = "member";
+        public Map<String, RoleMappingEntry> roleMappings = new LinkedHashMap<>();
+
+        public RoleSyncConfig() {
+            RoleMappingEntry example = new RoleMappingEntry();
+            example.permissionGroup = "vip";
+            example.priority = 1;
+            roleMappings.put("000000000000000000", example);
+        }
+    }
+
+    public static class RoleMappingEntry {
+        public String permissionGroup = "member";
+        public int priority = 0;
+    }
+
+    public static class RemoteCommandsConfig {
+        public boolean enabled = false;
+        public String commandChannelId = "000000000000000000";
+        public String commandPrefix = "!";
+        public Map<String, List<String>> authorizedRoles = new LinkedHashMap<>();
+        public RateLimitConfig rateLimit = new RateLimitConfig();
+
+        public RemoteCommandsConfig() {
+            authorizedRoles.put("000000000000000000",
+                    Arrays.asList("list", "whitelist", "kick", "broadcast", "stop"));
+        }
+    }
+
+    public static class RateLimitConfig {
+        public boolean enabled = true;
+        public int maxCommandsPerMinute = 10;
+        public boolean perUser = true;
     }
 }

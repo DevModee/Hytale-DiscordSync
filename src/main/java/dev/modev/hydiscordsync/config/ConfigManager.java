@@ -44,6 +44,23 @@ public class ConfigManager {
                 saveNeeded = true;
             }
 
+            if (configLoaded.roleSync == null) {
+                System.out.println("[ConfigManager] Updating config: Adding 'roleSync' section...");
+                configLoaded.roleSync = new BotConfig.RoleSyncConfig();
+                saveNeeded = true;
+            }
+
+            if (configLoaded.remoteCommands == null) {
+                System.out.println("[ConfigManager] Updating config: Adding 'remoteCommands' section...");
+                configLoaded.remoteCommands = new BotConfig.RemoteCommandsConfig();
+                saveNeeded = true;
+            }
+
+            if (configLoaded.remoteCommands.rateLimit == null) {
+                configLoaded.remoteCommands.rateLimit = new BotConfig.RateLimitConfig();
+                saveNeeded = true;
+            }
+
             if (saveNeeded) {
                 save(configLoaded);
                 System.out.println("[ConfigManager] Configuration file updated automatically.");
