@@ -1,8 +1,8 @@
 {
   "Group": "dev.modev",
   "Name": "HytaleDiscordSync",
-  "Version": "1.0-SNAPSHOT",
-  "Description": "Sincronizacion de chat entre Hytale y Discord",
+  "Version": "2.0",
+  "Description": "Bidirectional Discord-Hytale sync with role sync and remote commands",
   "Authors": [
     {
       "Name": "Matias",
